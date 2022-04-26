@@ -6,7 +6,7 @@ set -eu
 RUN_DIR=/run/nvidia
 PID_FILE=${RUN_DIR}/${0##*/}.pid
 DRIVER_VERSION=${DRIVER_VERSION:?"Missing driver version"}
-NVIDIA_BINUITLS_DIR=/opt/nvidia/binutils
+NVIDIA_BINUTILS_DIR=/opt/nvidia/binutils
 NVIDIA_KMODS_DIR=/opt/nvidia/${DRIVER_VERSION}
 
 export COREOS_RELEASE_CHANNEL=stable
@@ -66,14 +66,14 @@ _install_development_env() {
     _exec mount --rbind /usr/src /mnt/coreos/usr/src
 
     # Archive the binutils since we need the linker for re-linking the modules
-    if [ ! -e ${NVIDIA_BINUITLS_DIR} ]; then
-        mkdir -p ${NVIDIA_BINUITLS_DIR}/libs
-        mkdir -p ${NVIDIA_BINUITLS_DIR}/bin
+    if [ ! -e ${NVIDIA_BINUTILS_DIR} ]; then
+        mkdir -p ${NVIDIA_BINUTILS_DIR}/libs
+        mkdir -p ${NVIDIA_BINUTILS_DIR}/bin
     fi
     local binutils_ver=$(ls -d /mnt/coreos/usr/lib64/binutils/x86_64-cros-linux-gnu/*)
     binutils_ver=${binutils_ver##*/}
-    cp -r /mnt/coreos/usr/x86_64-cros-linux-gnu/binutils-bin/${binutils_ver}/* ${NVIDIA_BINUITLS_DIR}/bin/
-    cp -r /mnt/coreos/usr/lib64/binutils/x86_64-cros-linux-gnu/${binutils_ver}/* ${NVIDIA_BINUITLS_DIR}/libs/
+    cp -r /mnt/coreos/usr/x86_64-cros-linux-gnu/binutils-bin/${binutils_ver}/* ${NVIDIA_BINUTILS_DIR}/bin/
+    cp -r /mnt/coreos/usr/lib64/binutils/x86_64-cros-linux-gnu/${binutils_ver}/* ${NVIDIA_BINUTILS_DIR}/libs/
 
 }
 
@@ -315,8 +315,8 @@ _install_driver() {
     cp ../../nvidia/nv-kernel.o_binary .
     cp ../../nvidia-modeset/nv-modeset-kernel.o_binary .
     echo "Re-linking NVIDIA driver kernel modules..."
-    ${NVIDIA_BINUITLS_DIR}/bin/ld -d -r -T ${base_dir}/module.lds -o nvidia.ko ./nv-linux.o ./nv-kernel.o_binary ./nvidia.mod.o
-    ${NVIDIA_BINUITLS_DIR}/bin/ld -d -r -T ${base_dir}/module.lds -o nvidia-modeset.ko ./nv-modeset-linux.o ./nv-modeset-kernel.o_binary nvidia-modeset.mod.o
+    ${NVIDIA_BINUTILS_DIR}/bin/ld -d -r -T ${base_dir}/module.lds -o nvidia.ko ./nv-linux.o ./nv-kernel.o_binary ./nvidia.mod.o
+    ${NVIDIA_BINUTILS_DIR}/bin/ld -d -r -T ${base_dir}/module.lds -o nvidia-modeset.ko ./nv-modeset-linux.o ./nv-modeset-kernel.o_binary nvidia-modeset.mod.o
     export LD_LIBRARY_PATH=${old_ld_path}
     
 
