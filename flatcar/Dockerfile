@@ -1,4 +1,5 @@
-FROM nvidia/cuda:11.4.1-base-ubuntu18.04
+ARG CUDA_VERSION=11.6.0
+FROM nvidia/cuda:${CUDA_VERSION}-base-ubuntu18.04
 
 ENV NVIDIA_VISIBLE_DEVICES=void
 
