@@ -1,7 +1,7 @@
 #! /bin/bash
 # Copyright (c) 2018-2021, NVIDIA CORPORATION. All rights reserved.
 
-set -eu
+set -eux
 
 RUN_DIR=/run/nvidia
 PID_FILE=${RUN_DIR}/${0##*/}.pid
@@ -98,6 +98,7 @@ _install_prerequisites() (
     echo "Installing the Flatcar kernel sources into the development environment..."
 
     cat <<'EOF' | chroot /mnt/coreos /bin/bash
+set -x
 KERNEL_VERSION=$(ls /lib/modules)
 KERNEL_STRING=$(echo "${KERNEL_VERSION}" | cut -d "-" -f1)
 echo "Installing kernel sources for kernel version ${KERNEL_VERSION}..."
