@@ -38,7 +38,7 @@ $ docker run --rm --privileged \
      -e "RUNTIME=docker" \
      -e "RUNTIME_ARGS=--socket /run/docker.sock" \
      -e "DOCKER_SOCKET=/run/docker.sock" \
-     nvcr.io/nvidia/k8s/container-toolkit:1.4.7-ubuntu18.04 \
+     nvcr.io/nvidia/k8s/container-toolkit:v1.9.0-ubuntu18.04 \
      "/opt/nvidia-runtime"
 ```
 You should see an output as shown below:
@@ -104,9 +104,9 @@ Launch the driver container using the following as an example:
 
 ```bash
 $ docker run -d --privileged --pid=host \
+    --tmpfs /tmp \
     -v /run/nvidia:/run/nvidia:shared \
     -v /tmp/nvidia:/var/log \
-    -v /usr/lib64/modules:/usr/lib64/modules \
     --name nvidia-driver \
     nvidia/nvidia-driver-flatcar:${DRIVER_VERSION} update
 ```
@@ -144,9 +144,9 @@ Run the driver container with the tagged image from the previous step:
 
 ```bash
 $ docker run -d --privileged --pid=host \
+     --tmpfs /tmp \
      -v /run/nvidia:/run/nvidia:shared \
      -v /tmp/nvidia:/var/log \
-     -v /usr/lib64/modules:/usr/lib64/modules \
      nvidia/nvidia-kmods-driver-flatcar:${DRIVER_VERSION}
 ```
 
