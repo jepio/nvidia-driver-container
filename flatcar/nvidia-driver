@@ -29,8 +29,8 @@ _install_development_env() {
     # The resulting module files and module dependencies are then archived.
     local latest_release
     latest_release=$(echo "${COREOS_RELEASE_VERSION}" | awk '{ print $1 }')
-    local dev_image="flatcar_developer_container.bin"
-    local dev_image_url="https://${COREOS_RELEASE_CHANNEL}.release.flatcar-linux.net/${COREOS_RELEASE_BOARD}/${latest_release}/${dev_image}.bz2"
+    local dev_image="/tmp/flatcar_developer_container.bin"
+    local dev_image_url="https://${COREOS_RELEASE_CHANNEL}.release.flatcar-linux.net/${COREOS_RELEASE_BOARD}/${latest_release}/${dev_image##*/}.bz2"
 
     curl -Ls "${dev_image_url}" | lbzip2 -dq > "${dev_image}"
     local sector_size
