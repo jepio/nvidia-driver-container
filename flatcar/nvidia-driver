@@ -98,7 +98,7 @@ _install_prerequisites() (
     echo "Installing the Flatcar kernel sources into the development environment..."
 
     cat <<'EOF' | chroot /mnt/coreos /bin/bash
-KERNEL_VERSION=$(cat /usr/src/linux/include/config/kernel.release || ls /lib/modules)
+KERNEL_VERSION=$(ls /lib/modules)
 KERNEL_STRING=$(echo "${KERNEL_VERSION}" | cut -d "-" -f1)
 echo "Installing kernel sources for kernel version ${KERNEL_VERSION}..."
 source /etc/os-release
@@ -106,21 +106,6 @@ source /etc/os-release
  echo "Fixing path for flatcar kernel sources..." && \
  sed -i -e "s;http://builds.developer.core-os.net/boards/;https://storage.googleapis.com/flatcar-jenkins/boards/;g" /etc/portage/make.conf
 export $(cat /usr/src/version.txt | xargs)
-emerge-gitclone \
-&& export OVERLAY_VERSION="${COREOS_RELEASE_CHANNEL}-${COREOS_RELEASE_VERSION}" \
-&& export PORTAGE_VERSION="${COREOS_RELEASE_CHANNEL}-${COREOS_RELEASE_VERSION}" \
-&& git -C /var/lib/portage/coreos-overlay checkout "$OVERLAY_VERSION" \
-&& git -C /var/lib/portage/portage-stable checkout "$PORTAGE_VERSION"
-emerge -gKq coreos-sources \
-|| echo "failed to download binaries, fallback build from source:" \
-&& emerge -q --jobs 4 --load-average 4 coreos-sources
-# Ensure that the symbolic link points to the right kernel version
-rm -f /usr/src/linux
-ln -s /usr/src/linux-${KERNEL_STRING}-coreos /usr/src/linux
-cp /lib/modules/${KERNEL_VERSION}/build/.config /usr/src/linux
-make -C /usr/src/linux modules_prepare > /dev/null
-cp /lib/modules/${KERNEL_VERSION}/build/Module.symvers /usr/src/linux/
-depmod ${KERNEL_VERSION}
 mkdir -p /usr/src/linux/proc
 cp /proc/version /usr/src/linux/proc/
 
@@ -129,7 +114,8 @@ cp /lib/modules/${KERNEL_VERSION}/build/scripts/module.lds /usr/src/nvidia-*/ker
 cd /usr/src/nvidia-*/kernel
 export IGNORE_CC_MISMATCH=1
 export IGNORE_MISSING_MODULE_SYMVERS=1
-make -s -j SYSSRC=/lib/modules/${KERNEL_VERSION}/source nv-linux.o nv-modeset-linux.o > /dev/null
+export CC=x86_64-cros-linux-gnu-gcc
+make -s -j SYSSRC=/lib/modules/${KERNEL_VERSION}/source SYSOUT=/lib/modules/${KERNEL_VERSION}/build nv-linux.o nv-modeset-linux.o > /dev/null
 EOF
     mkdir -p /lib/modules/${KERNEL_VERSION}
     cp -r /mnt/coreos/lib/modules/${KERNEL_VERSION}/* /lib/modules/${KERNEL_VERSION}/
