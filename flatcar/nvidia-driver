@@ -32,7 +32,7 @@ _install_development_env() {
     local dev_image="flatcar_developer_container.bin"
     local dev_image_url="https://${COREOS_RELEASE_CHANNEL}.release.flatcar-linux.net/${COREOS_RELEASE_BOARD}/${latest_release}/${dev_image}.bz2"
 
-    curl -Ls "${dev_image_url}" | bzip2 -dq > "${dev_image}"
+    curl -Ls "${dev_image_url}" | lbzip2 -dq > "${dev_image}"
     local sector_size
     sector_size=$(fdisk -l "${dev_image}" | grep "^Sector size" | awk '{ print $4 }')
     local sector_start

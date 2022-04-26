@@ -19,6 +19,7 @@ RUN dpkg --add-architecture i386 && \
         libc6:i386 \
         libelf-dev \
         libssl-dev \
+        lbzip2 \
         module-init-tools \
         software-properties-common && \
     rm -rf /var/lib/apt/lists/*
