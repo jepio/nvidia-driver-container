@@ -39,16 +39,12 @@ _install_development_env() {
     sector_start=$(fdisk -l "${dev_image}" | grep "^${dev_image}*" | awk '{ print $2 }')
     local offset_limit=$((sector_start * sector_size))
 
-    mkdir -p /mnt/coreos
+    mkdir -p /mnt/coreos /mnt/dev
     local loop_dev="/dev/loop0"
-    _exec mount -o loop=${loop_dev},offset=${offset_limit} ${dev_image} /mnt/coreos
-
-    # add more space to the device
-    local mount_path
-    mount_path=$(losetup --list --noheadings -O BACK-FILE "${loop_dev}")
-    dd if=/dev/zero bs=1MiB of="${mount_path}" conv=notrunc oflag=append count=3000
-    losetup -c ${loop_dev}
-    resize2fs ${loop_dev}
+    _exec mount -o loop=${loop_dev},offset=${offset_limit} ${dev_image} /mnt/dev
+    tar -cp -C /mnt/dev . | tar -xpf - -C /mnt/coreos
+    _exec umount -l /mnt/dev
+    rm -f "${dev_image}"
 
     # Version.txt contains some pre-defined environment variables 
     # that we will use when building the kernel modules
@@ -79,9 +75,8 @@ _install_development_env() {
 
 _cleanup_development_env() {
     echo "Cleaning up the development environment..."
-    _exec umount -l /mnt/coreos
+    _exec umount -lR /mnt/coreos/{proc,sys,dev,usr/src}
     rm -rf /mnt/coreos
-    rm -f "/usr/src/nvidia-${DRIVER_VERSION}/flatcar_developer_container.bin"
 }
 
 # Install the kernel modules header/builtin/order files and generate the kernel version string.
